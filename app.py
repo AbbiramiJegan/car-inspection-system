@@ -49,6 +49,9 @@ if uploaded_file is not None:
     cap = cv2.VideoCapture(video_path)
     stframe = st.empty()
 
+    # Define line X-coordinate for detection
+    LINE_X = 600  
+
     with st.spinner("Running detection on each frame..."):
         while cap.isOpened():
             success, frame = cap.read()
@@ -59,10 +62,20 @@ if uploaded_file is not None:
             results = model.predict(frame, conf=0.3, verbose=False)
             annotated_frame = results[0].plot()
 
-            # Show frame
+            # Draw boundary zone (vertical red line)
+            ZONE_WIDTH = 5
+            cv2.rectangle(
+                annotated_frame,
+                (LINE_X - ZONE_WIDTH // 2, 0),
+                (LINE_X + ZONE_WIDTH // 2, frame.shape[0]),
+                color=(0, 0, 255),
+                thickness=-1
+            )
+
+            # Show live detection frame
             stframe.image(annotated_frame, channels="BGR", use_container_width=True)
 
-            time.sleep(0.03)  # Simulate smooth playback
+            time.sleep(0.03)
 
         cap.release()
 
